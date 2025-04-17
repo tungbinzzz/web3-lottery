@@ -3,10 +3,10 @@ pragma solidity ^0.8.13;
 
 uint256 constant ENTRANCE_FEE = 0.01 ether;
 uint256 constant GAS_LIMIT = 1000000;
-uint256 constant CALLBACK_GAS_LIMIT = 100000;
+uint32 constant CALLBACK_GAS_LIMIT = 100000;
 
 //Chain ID
-uint256 constant LOCAL_CHAIN_ID = 1337;
+uint256 constant LOCAL_CHAIN_ID = 31337;
 uint256 constant SEPOLIA_CHAIN_ID = 11155111;
 
 //Chainlink VRF V2.5 Mock

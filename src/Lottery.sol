@@ -29,7 +29,7 @@ import {VRFV2PlusClient} from "../lib/chainlink/contracts/src/v0.8/vrf/dev/libra
 /// @notice User can create a lottery and join a lottery
 /// @dev This contract is used to create and manage lotteries
 
-abstract contract Lottery is VRFConsumerBaseV2Plus {
+contract Lottery is VRFConsumerBaseV2Plus {
     /*//////////////////////////////////////////////////////////////
                                ERRORS
     //////////////////////////////////////////////////////////////*/
@@ -53,10 +53,10 @@ abstract contract Lottery is VRFConsumerBaseV2Plus {
     uint256 private s_rewardBalance;
     address[] private s_players;
     //Chainlink VRF
-    uint256 immutable private i_subscriptionId;
-    address immutable private i_vrfCoordinator ;
-    bytes32 immutable private s_keyHash ;
-    uint32 immutable private  i_callbackGasLimit;
+    uint256 private immutable i_subscriptionId;
+
+    bytes32 private immutable s_keyHash;
+    uint32 private immutable i_callbackGasLimit;
     uint16 private constant requestConfirmations = 3;
     uint32 private constant numWords = 1;
 
@@ -64,19 +64,25 @@ abstract contract Lottery is VRFConsumerBaseV2Plus {
                                EVENTS
     //////////////////////////////////////////////////////////////*/
     event LotteryEntered(address player);
+    event LotteryRequested(uint256 requestId);
 
     /*//////////////////////////////////////////////////////////////
                                 FUNCTION
     //////////////////////////////////////////////////////////////*/
-    constructor(uint256 entranceFee, uint256 subscriptionId, address vrfCoordinator, bytes32 keyHash, uint32 callbackGasLimit) VRFConsumerBaseV2Plus(vrfCoordinator) {
+    constructor(
+        uint256 entranceFee,
+        uint256 subscriptionId,
+        address vrfCoordinator,
+        bytes32 keyHash,
+        uint32 callbackGasLimit
+    ) VRFConsumerBaseV2Plus(vrfCoordinator) {
         i_entranceFee = entranceFee;
         s_lotteryState = LotteryState.OPEN; // Initialize the lottery state to OPEN
         //Deloyed
         i_subscriptionId = subscriptionId;
-        i_vrfCoordinator = vrfCoordinator;
+    
         s_keyHash = keyHash;
         i_callbackGasLimit = callbackGasLimit;
-        
     }
 
     /*//////////////////////////////////////////////////////////////
@@ -102,6 +108,35 @@ abstract contract Lottery is VRFConsumerBaseV2Plus {
         emit LotteryEntered(msg.sender);
     }
 
+    function requestLottery() public returns (uint256 requestId) {
+        //Check - Validate the lottery state
+
+        //Effect - Update state variables
+        requestId = s_vrfCoordinator.requestRandomWords(
+            VRFV2PlusClient.RandomWordsRequest({
+                keyHash: s_keyHash,
+                subId: i_subscriptionId,
+                requestConfirmations: requestConfirmations,
+                callbackGasLimit: i_callbackGasLimit,
+                numWords: numWords,
+                // Set nativePayment to true to pay for VRF requests with Sepolia ETH instead of LINK
+                extraArgs: VRFV2PlusClient._argsToBytes(VRFV2PlusClient.ExtraArgsV1({nativePayment: false}))
+            })
+        );
+
+        s_lotteryState = LotteryState.CLOSED; 
+
+        //Interaction - Request random number from Chainlink VRF
+
+        emit LotteryRequested(requestId);
+    }
+
+     // fulfillRandomWords function
+    function fulfillRandomWords(uint256 requestId, uint256[] calldata randomWords) internal override {
+
+       
+    }
+
     /*//////////////////////////////////////////////////////////////
                             GETTER FUNCTIONS
     //////////////////////////////////////////////////////////////*/
@@ -119,5 +154,9 @@ abstract contract Lottery is VRFConsumerBaseV2Plus {
 
     function getPlayersLength() public view returns (uint256) {
         return s_players.length;
+    }
+
+    function getVRFCoordinator() public view returns (address) {
+        return address(s_vrfCoordinator);
     }
 }
