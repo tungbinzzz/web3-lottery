@@ -1,0 +1,70 @@
+body {
+    background: linear-gradient(-45deg, #1a1a2e, #0f3460, #00fff2, #16213e);
+    background-size: 400% 400%;
+    animation: neonBackground 15s ease infinite;
+}
+
+@keyframes neonBackground {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+.animate-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+.glow-text {
+    text-shadow: 0 0 5px #7fffd4, 0 0 10px #7fffd4, 0 0 15px #7fffd4;
+}
+
+
+
+.neon-border {
+    box-shadow: 0 0 15px #00fff2, 0 0 30px #00fff2 inset;
+}
+
+.neon-text {
+    text-shadow: 0 0 8px #00fff2;
+}
+
+.neon-particles-layer {
+    position: absolute;
+    width: 300%;
+    height: 300%;
+    background: radial-gradient(circle, #00fff2 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: moveStars 60s linear infinite;
+    opacity: 0.06;
+}
+
+
+@keyframes moveStars {
+    from {
+        transform: translate(0, 0);
+    }
+
+    to {
+        transform: translate(-500px, -1000px);
+    }
+}
